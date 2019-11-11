@@ -113,23 +113,36 @@
             </p>
           </div>
         </div>
-        <div class="row">
-          {% for wine in wine_list %}
+        
+    {% for name in products_dict %}
+      <div class="col-12 section-title text-center mb-5">
+          <h2 class="d-block">{{ name }}</h2>
+      </div> 
+      <div class="row">
+        {% for wine in products_dict[name] %}
           <div class="col-lg-4 mb-5 col-md-6">
-            <div class="wine_v_1 text-center pb-4 pt-5">
-              <img src="{{ wine.picture }}" alt="Image" class="img-fluid">
-              <div>
-                <h3 class="heading mt-3 mb-3 text-dark">{{ wine.name }}</font></h3>
-                <p>
-                  Сорт винограда - {{ wine.sort }}<br/>
-                  <span class="price">{{ wine.price }}</span>
-                </p>
+              {% if wine.offer %}
+                <img src="images/profitable.png" style="width:10rem;height: 10rem;position:absolute;right: -20px;top: -20px;">
+              {% endif %}
+              <div class="wine_v_1 text-center pb-4 pt-5">
+                  <img src="{{ wine.picture }}" alt="Image" class="img-fluid">
+                  <div>
+                    <h3 class="heading mt-3 mb-3 text-dark">{{ wine.name }}</font></h3>
+                    <p>
+                      {% if wine.sort %}
+                        Сорт винограда - {{ wine.sort }}<br/>
+                      {% endif %}
+                      <span class="price">{{ wine.price }}</span>
+                    </p>
+                  </div>
               </div>
-            </div>
-          </div>
-          {% endfor %}
 
-    </div>
+          </div>
+        {% endfor %}
+      </div>
+
+    {% endfor %}
+
 
     <div class="hero-2" style="background-image: url('images/hero_2.jpg');">
     <div><a id="feedback"></a></div>
@@ -142,6 +155,7 @@
         </div>
       </div>
     </div>
+  </div>
 
     <div class="site-section bg-light">
       <div class="container">
