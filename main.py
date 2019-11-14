@@ -6,49 +6,41 @@ from datetime import datetime
 FOUNDATION_YEAR = 1920
 
 
-def parse_wine(wine: list) -> dict:
-    wine_dict = {
-            'name': wine[0][10:],
-            'sort': wine[1][6:],
-            'price': wine[2][6:] + ' р.',
-            'picture': wine[3][10:],
-            'offer': False,
+def parse_product(product: list) -> dict:
+    parsed_product = {
+            'name': product[0][10:],
+            'sort': product[1][6:],
+            'price': product[2][6:] + ' р.',
+            'picture': product[3][10:],
+            'offer': bool(product[4]),
             }
-    if wine[4]:
-        wine_dict['offer'] = True
-    return wine_dict
+    return parsed_product
 
 
-def get_raw_wine_data(filename: str) -> list:
-    with open(filename, 'r') as my_file:
-        wine_data = my_file.read().split('\n')
-    return wine_data
-
-
-def get_products_render_data():
-    products_dict = dict()
-    wine_data = get_raw_wine_data('products.txt')
+def get_products_render_data(products_description):
+    products = dict()
     current_index = 0
     index_delta = 5
-    while current_index+index_delta <= len(wine_data):
+    while current_index+index_delta <= len(products_description):
         try:
-            first_symbol = wine_data[current_index][0]
+            first_symbol = products_description[current_index][0]
         except IndexError:
             current_index += 1
             continue
         if first_symbol == "#":
-            category_name = wine_data[current_index][2:]
-            products_dict[category_name] = []
+            category_name = products_description[current_index][2:]
+            products[category_name] = []
             current_index += 3
         else:
-            wine = parse_wine(
-                    wine_data[current_index:current_index+index_delta])
-            if wine['offer']:
+            product = parse_product(
+                    products_description[current_index:current_index+index_delta]
+                    )
+            if product['offer']:
                 current_index += index_delta + 1
             else:
                 current_index += index_delta
-            products_dict[category_name].append(wine)
-    return products_dict
+            products[category_name].append(product)
+    return products
 
 
 def render_index(env, products_dict):
@@ -67,11 +59,12 @@ def main():
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
-    )
+    )  
+    with open('products.txt', 'r') as my_file:
+        products_description_lines = my_file.read().split('\n')
+    products = get_products_render_data(products_description_lines)
 
-    products_dict = get_products_render_data()
-
-    render_index(env, products_dict)
+    render_index(env, products)
 
     server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
     server.serve_forever()
