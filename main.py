@@ -3,6 +3,9 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from datetime import datetime
 
 
+FOUNDATION_YEAR = 1920
+
+
 def parse_wine(wine: list) -> dict:
     wine_dict = {
             'name': wine[0][10:],
@@ -38,7 +41,8 @@ def get_products_render_data():
             products_dict[category_name] = []
             current_index += 3
         else:
-            wine = parse_wine(wine_data[current_index:current_index+index_delta])
+            wine = parse_wine(
+                    wine_data[current_index:current_index+index_delta])
             if wine['offer']:
                 current_index += index_delta + 1
             else:
@@ -47,25 +51,31 @@ def get_products_render_data():
     return products_dict
 
 
-FOUNDATION_YEAR = 1920
+def render_index(env, products_dict):
+    template = env.get_template('template.html')
+    winery_age = datetime.now().year - FOUNDATION_YEAR
+    rendered_page = template.render(
+            winery_age=winery_age,
+            products_dict=products_dict
+            )
 
-env = Environment(
-    loader=FileSystemLoader('.'),
-    autoescape=select_autoescape(['html', 'xml'])
-)
-
-products_dict = get_products_render_data()
-
-template = env.get_template('template.html')
-winery_age = datetime.now().year - FOUNDATION_YEAR
-rendered_page = template.render(
-        winery_age=winery_age,
-        products_dict=products_dict
-        )
-
-with open('index.html', 'w', encoding="utf8") as file:
-    file.write(rendered_page)
+    with open('index.html', 'w', encoding="utf8") as file:
+        file.write(rendered_page)
 
 
-server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-server.serve_forever()
+def main():
+    env = Environment(
+        loader=FileSystemLoader('.'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+
+    products_dict = get_products_render_data()
+
+    render_index(env, products_dict)
+
+    server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
+    server.serve_forever()
+
+
+if __name__ == "__main__":
+    main()
