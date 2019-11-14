@@ -43,12 +43,12 @@ def get_products_render_data(products_description):
     return products
 
 
-def render_index(env, products_dict):
+def render_index(env, products):
     template = env.get_template('template.html')
     winery_age = datetime.now().year - FOUNDATION_YEAR
     rendered_page = template.render(
             winery_age=winery_age,
-            products_dict=products_dict
+            products=products
             )
 
     with open('index.html', 'w', encoding="utf8") as file:
